@@ -3,42 +3,69 @@ import 'dotenv/config'
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { Hono } from 'hono'
+import { sign } from 'hono/jwt'
 
-
-const api = new Hono<{
+const app = new Hono<{
   Bindings: {
     DATABASE_URL: string
+    SECRET: string
   }
 }>().basePath('/api/v1')
 
-api.post('/signup', async (c) => {
+app.post('/signup', async (c) => {
   const prisma = new PrismaClient({
     accelerateUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
 
+  
   const body = await c.req.json();
-  await prisma.user.create({
+  const user = await prisma.user.create({
     data: {
       email: body.email,
       password: body.password,
     },
   })
+  
+  const token = await sign({ id: user.id}, c.env.SECRET)
+  return c.json({
+    jwt: token
+  })
 
-  return c.text('Hello Hono!')
 })
-api.post('/signin', (c) => {
-  return c.text('Hello Hono!')
+app.post('/signin', async (c) => {
+  const prisma = new PrismaClient({
+    accelerateUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  const body = await c.req.json();
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: body.email
+    }
+  })
+
+  if(!user) {
+    c.status(403);
+    return c.json({
+      error: "User doesn't exist"
+    })
+  }
+
+  const jwt = await sign({id: user.id}, c.env.SECRET)
+  return c.json({ jwt });
+
 })
-api.post('/blog', (c) => {
+app.post('/blog', (c) => {
   return c.text('Hello Hono!')
 })
 
-api.put('/blog', (c) => {
+app.put('/blog', (c) => {
   return c.text('Hello Hono!')
 })
 
-api.get('/blog/:id', (c) => {
+app.get('/blog/:id', (c) => {
   return c.text('Hello Hono!')
 })
 
-export default api
+export default app
