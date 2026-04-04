@@ -1,3 +1,4 @@
+import { createBlogInput, deleteBlogInput, updateBlogInput } from "@kunal245/medium-common";
 import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { Hono } from "hono";
@@ -17,6 +18,7 @@ export const blogRouter = new Hono<{
 blogRouter.use('/*', async (c, next) => {
   const getToken = c.req.header("Authorization") || "";
   const token = getToken.split(" ")[1];
+  
   try{
     const response = await verify(token, c.env.SECRET, 'HS256');
     if(!response.id) {
@@ -36,12 +38,21 @@ blogRouter.use('/*', async (c, next) => {
 })
 
 blogRouter.post('/', async (c) => {
+    const authorId = c.get("userId");
+    const body = await c.req.json();
+    const { success } = createBlogInput.safeParse(body);
+
+    if(!success){
+        c.status(411)
+        return c.json({
+            error: "Wrong Inputs"
+        })
+    }
+
     const prisma = new PrismaClient({
     accelerateUrl: c.env.DATABASE_URL,
     }).$extends(withAccelerate());
 
-    const authorId = c.get("userId")
-    const body = await c.req.json();
 
     const blog = await prisma.post.create({
         data:{
@@ -55,11 +66,20 @@ blogRouter.post('/', async (c) => {
 })
 
 blogRouter.put('/', async (c) => {
+    const body = await c.req.json();
+    const { success } = updateBlogInput.safeParse(body);
+
+    if(!success){
+        c.status(411)
+        return c.json({
+            error: "Wrong Inputs"
+        })
+    }
+
     const prisma = new PrismaClient({
     accelerateUrl: c.env.DATABASE_URL,
     }).$extends(withAccelerate());
 
-    const body = await c.req.json();
 
     const blog = await prisma.post.update({
         where:{
@@ -75,11 +95,20 @@ blogRouter.put('/', async (c) => {
 })
 
 blogRouter.delete('/', async (c) => {
+    const body = await c.req.json();
+    const { success } = deleteBlogInput.safeParse(body);
+
+    if(!success){
+        c.status(411)
+        return c.json({
+            error: "Wrong Inputs"
+        })
+    }
+
     const prisma = new PrismaClient({
     accelerateUrl: c.env.DATABASE_URL,
     }).$extends(withAccelerate());
 
-    const body = await c.req.json();
 
     const blog = await prisma.post.delete({
         where:{
