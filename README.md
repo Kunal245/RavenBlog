@@ -1,5 +1,5 @@
 
-## A hono based blog posting application
+## A hono based serverless blog posting application
 
 #### Docker Setup for local Postgres
 
@@ -16,5 +16,12 @@
 - Generate prisma client ``` npx prisma generate ``` (use --no-engine flag if you are using older version)
 - Install prisma accelerate extension ``` npm install @prisma/extension-accelerate ```
 - Optimize and initiate Prisma Client in the index.js to use Prisma v7 as there is major changes in v7 read these **[Docs](https://www.prisma.io/docs/prisma-postgres/quickstart/prisma-orm#7-instantiate-prisma-client)**, **[Docs(for accelerate)](https://www.prisma.io/docs/accelerate/getting-started#24-extend-your-prisma-client-instance-with-the-accelerate-extension)** for referance
+
+
+### Serverless deployment using Cloudflare Workers
+- Login to Cloudflare in browser
+- Run ``` npx wrangler login ``` to login
+- Check your Cloudflare credentials using ``` npx wrangler whoami ```
+- To deploy your application run ``` npm run deploy ```
 
 

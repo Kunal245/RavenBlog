@@ -17,16 +17,22 @@ export const blogRouter = new Hono<{
 blogRouter.use('/*', async (c, next) => {
   const getToken = c.req.header("Authorization") || "";
   const token = getToken.split(" ")[1];
-  const response = await verify(token, c.env.SECRET, 'HS256');
-
-  if(!response.id) {
+  try{
+    const response = await verify(token, c.env.SECRET, 'HS256');
+    if(!response.id) {
+      return c.json({
+        error: "Invalid token"
+      })
+    }
+    
+    c.set("userId", response.id as string)
+    await next();
+    } catch(e) {
+    c.status(403)
     return c.json({
-      error: "Invalid token"
+        error: "You are not logged in"
     })
-  }
-
-  c.set("userId", response.id as string)
-  await next();
+    }
 })
 
 blogRouter.post('/', async (c) => {
