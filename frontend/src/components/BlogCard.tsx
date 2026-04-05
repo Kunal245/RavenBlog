@@ -25,17 +25,17 @@ export const BlogCard = ({
           <span>{publishDate}</span>
         </div>
 
-        {/* Title */}
+        {/* title */}
         <h2 className="font-serif text-xl font-medium text-[#2c2218] leading-snug mb-2.5">
           {title}
         </h2>
 
-        {/* Excerpt */}
+        {/* content */}
         <p className="font-serif text-sm italic text-[#5a4a38] leading-relaxed mb-4">
           {content.slice(0, 100) + "..."}
         </p>
 
-        {/* Footer */}
+        {/* click */}
         <div className="flex items-center justify-between border-t border-[#d4c9b0] pt-3 mt-1">
           <span className="font-serif text-xs text-[#9a8870] tracking-wider lowercase">
             {`${Math.ceil(content.length / 300)} min read`}
