@@ -1,13 +1,30 @@
 import type { SignupInput } from "@kunal245/medium-common";
 import { useState, type ChangeEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { BACKEND_URL } from "../config";
 
 export const Auth = ({type}: {type: "signup" | "signin"}) => {
+
+    
+    const navigate = useNavigate();
     const [postInputs, setPostInputs] = useState<SignupInput>({
         username: "",
         password: "",
         name: "",
-    })
+    });
+
+    async function sendRequest() {
+      try{
+        const response = await axios.post(`${BACKEND_URL}/api/v1/user/${type === "signup" ? "signup" : "signin"}`, postInputs)
+        const jwt = response.data;
+        localStorage.setItem("token", jwt)
+        navigate("/blogs")
+      } catch(e){
+        alert("Error while signing up")
+      }
+    }
+
     return (
       <div className="bg-taupe-600 lg:bg-taupe-600 h-screen w-screen flex justify-center items-center">
         <div className="bg-taupe-400 w-screen h-screen lg:bg-taupe-400 lg:w-[700px] lg:h-[450px] rounded-4xl shadow-2xl pt-10">
@@ -40,7 +57,7 @@ export const Auth = ({type}: {type: "signup" | "signin"}) => {
               }))
             }} />
             <div className="py-4 flex justify-center">
-                <button type="button" className="text-fg-brand bg-neutral-primary border border-brand hover:bg-brand hover:text-white focus:ring-4 focus:ring-brand-subtle font-medium rounded-base text-base px-6 py-3.5 focus:outline-none">{type === "signup" ? "Sign up" : "Sign in"}</button>
+                <button onClick={sendRequest} type="button" className="text-fg-brand bg-neutral-primary border border-brand hover:bg-brand hover:text-white focus:ring-4 focus:ring-brand-subtle font-medium rounded-base text-base px-6 py-3.5 focus:outline-none">{type === "signup" ? "Sign up" : "Sign in"}</button>
             </div>
           </div>
         </div>

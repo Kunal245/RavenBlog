@@ -3,7 +3,7 @@ import 'dotenv/config'
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { Hono } from "hono";
-import { sign, verify } from 'hono/jwt'
+import { sign } from 'hono/jwt'
 import { signinInput, signupInput } from '@kunal245/medium-common';
 
 export const userRouter = new Hono<{
@@ -33,14 +33,14 @@ userRouter.post('/signup', async (c) => {
   try{
     const user = await prisma.user.create({
       data: {
-        email: body.email,
+        email: body.username,
         password: body.password,
         name: body.name,
       },
     })
     
     const token = await sign({ id: user.id }, c.env.SECRET)
-    return c.json({ jwt: token })
+    return c.text(token)
   } catch(e) {
     c.status(411);
     return ("Invalid")
@@ -67,7 +67,7 @@ userRouter.post('/signin', async (c) => {
   try {
     const user = await prisma.user.findUnique({
       where: {
-        email: body.email,
+        email: body.username,
         password: body.password,
       }
     })
@@ -80,7 +80,7 @@ userRouter.post('/signin', async (c) => {
     }
   
     const jwt = await sign({id: user.id}, c.env.SECRET)
-    return c.json({ jwt });
+    return c.text(jwt);
 
   } catch(err) {
     c.status(411);
