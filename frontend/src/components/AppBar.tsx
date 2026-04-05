@@ -1,34 +1,50 @@
+import { Link } from "react-router-dom";
 import { Avatar } from "./BlogCard";
 
-interface AppBarProps{
-    username: string
+interface AppBarProps {
+  username: string;
+  rightSlot?: React.ReactNode;
 }
 
-export const AppBar = ({username}:AppBarProps ) => {
+export const AppBar = ({ username, rightSlot }: AppBarProps) => {
+  const handleLogout = () => {
+    // clear token / session here
+  };
+
   return (
     <div className="bg-[#f5f0e8] border-b border-[#d4c9b0] px-8 h-[60px] flex items-center justify-between w-full">
-      
-      <a href="/" className="flex items-center gap-2.5 no-underline">
+
+      <Link to="/blogs" className="flex items-center gap-2.5 no-underline">
         <RavenIcon />
         <span className="font-serif text-[19px] font-medium text-[#2c2218] tracking-tight">
           Raven<span className="text-[#8a6a40]">Blog</span>
         </span>
-      </a>
+      </Link>
 
       <nav className="flex items-center gap-7">
-        <a href="/discover" className="font-serif text-[13px] text-[#7a6a52] hover:text-[#2c2218] transition-colors no-underline tracking-wide">
+        <Link to="/" className="font-serif text-[13px] text-[#7a6a52] hover:text-[#2c2218] transition-colors no-underline tracking-wide">
           Home
-        </a>
-        <a href="/following" className="font-serif text-[13px] text-[#7a6a52] hover:text-[#2c2218] transition-colors no-underline tracking-wide">
+        </Link>
+        <button
+          onClick={handleLogout}
+          className="font-serif text-[13px] text-[#7a6a52] hover:text-[#2c2218] transition-colors bg-transparent border-none cursor-pointer tracking-wide"
+        >
           Logout
-        </a>
-        <a href="/bookmarks" className="font-serif text-[13px] text-[#7a6a52] hover:text-[#2c2218] transition-colors no-underline tracking-wide">
-          Profile
-        </a>
-        <button className="font-serif text-[12.5px] text-[#f5f0e8] bg-[#2c2218] hover:bg-[#4a3a28] transition-colors rounded-full px-[18px] py-[7px] tracking-wider">
-          ✦ Write
         </button>
-        <Avatar name={username}></Avatar>
+        <Link to="/profile" className="font-serif text-[13px] text-[#7a6a52] hover:text-[#2c2218] transition-colors no-underline tracking-wide">
+          Profile
+        </Link>
+
+        {rightSlot ?? (
+          <Link
+            to="/publish"
+            className="font-serif text-[12.5px] text-[#f5f0e8] bg-[#2c2218] hover:bg-[#4a3a28] transition-colors rounded-full px-[18px] py-[7px] tracking-wider no-underline"
+          >
+            ✦ Write
+          </Link>
+        )}
+
+        <Avatar name={username} />
       </nav>
     </div>
   );

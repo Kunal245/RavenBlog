@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { BACKEND_URL } from "../config"
 
 
-interface Blog{
+export interface Blog{
     "content": string,
     "title": string,
     "id": string,
@@ -18,13 +18,13 @@ export const useBlog = ({ id }: { id: string }) => {
 
     useEffect (() => {
         //sending backend fetch request to get a perticular blog
-        axios.get(`${BACKEND_URL}/api/v1/blog/bulk${id}`, {
+        axios.get(`${BACKEND_URL}/api/v1/blog/${id}`, {
             headers: {
                 Authorization: localStorage.getItem("token")
             }
         })
             .then(response => {
-                setBlog(response.data.blogs);
+                setBlog(response.data.blog);
                 setLoading(false);
             })
     }, [id])
