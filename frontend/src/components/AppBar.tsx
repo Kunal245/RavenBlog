@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Avatar } from "./BlogCard";
 
 interface AppBarProps {
@@ -7,9 +7,15 @@ interface AppBarProps {
 }
 
 export const AppBar = ({ username, rightSlot }: AppBarProps) => {
-  const handleLogout = () => {
-    // clear token / session here
-  };
+  const navigate = useNavigate();
+  async function sendRequest() {
+      try{
+        localStorage.removeItem("token")
+        navigate("/signup")
+      } catch(e){
+        alert("Error while logging out")
+      }
+    }
 
   return (
     <div className="bg-[#f5f0e8] border-b border-[#d4c9b0] px-8 h-[60px] flex items-center justify-between w-full">
@@ -26,14 +32,11 @@ export const AppBar = ({ username, rightSlot }: AppBarProps) => {
           Home
         </Link>
         <button
-          onClick={handleLogout}
+          onClick={sendRequest}
           className="font-serif text-[13px] text-[#7a6a52] hover:text-[#2c2218] transition-colors bg-transparent border-none cursor-pointer tracking-wide"
         >
           Logout
         </button>
-        <Link to="/profile" className="font-serif text-[13px] text-[#7a6a52] hover:text-[#2c2218] transition-colors no-underline tracking-wide">
-          Profile
-        </Link>
 
         {rightSlot ?? (
           <Link

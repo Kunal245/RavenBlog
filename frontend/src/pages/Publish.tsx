@@ -14,7 +14,7 @@ export const Publish = () => {
   const canPublish = title.trim().length > 0 && content.trim().length > 0;
 
   return (
-    <div className="min-h-screen bg-[#faf6ef]">
+    <div className="min-h-screen bg-[#faf6ef] animate-fade-down">
       <AppBar
         username="Kunal"
         rightSlot={

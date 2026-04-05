@@ -3,7 +3,7 @@ import { Quote } from "../components/Quote"
 
 export const Signup = () => {
   return (
-    <div className="h-screen w-screen grid grid-cols-1 lg:grid-cols-[35%_65%]">
+    <div className="h-screen w-screen grid grid-cols-1 lg:grid-cols-[35%_65%] animate-fade-down">
       
       <div className="hidden lg:flex items-center justify-center bg-orange-100">
         <Quote />

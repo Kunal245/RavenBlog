@@ -18,7 +18,7 @@ export const Blogs = () => {
         </div>
     }
     
-    return <div className="bg-taupe-600">
+    return <div className="bg-taupe-600" animate-fade-down>
         <div>
             <AppBar username="Kunal"></AppBar>
         </div>

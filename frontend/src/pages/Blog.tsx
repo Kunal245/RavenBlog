@@ -22,7 +22,7 @@ export const Blog = () => {
     }
     if (!blog) return <div>Blog not found</div>;
 
-    return <div className="bg-taupe-600">
+    return <div className="bg-taupe-600" animate-fade-down>
             <BlogPage blog={blog}></BlogPage>
         </div>
 }
