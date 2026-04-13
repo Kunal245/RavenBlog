@@ -10,7 +10,6 @@ export const Publish = () => {
   const [content, setContent] = useState("");
   const navigate = useNavigate()
 
-  // const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
   const canPublish = title.trim().length > 0 && content.trim().length > 0;
 
   return (
