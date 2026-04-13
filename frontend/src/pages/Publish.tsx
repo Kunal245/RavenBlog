@@ -33,7 +33,7 @@ export const Publish = () => {
             disabled={!canPublish}
             className="font-serif text-[12.5px] text-[#f5f0e8] bg-[#2c2218] disabled:bg-[#b0a090] disabled:cursor-not-allowed hover:bg-[#4a3a28] transition-colors rounded-full px-5 py-[7px] tracking-wider"
           >
-            Publish →
+            Publish ✍️
           </button>
         }
       />
@@ -65,37 +65,6 @@ export const Publish = () => {
           placeholder="Tell your story…"
           className="w-full font-serif text-[17px] text-[#3a2e22] leading-[1.85] bg-transparent border-none outline-none resize-none min-h-[360px] placeholder:text-[#c4b89e] placeholder:italic"
         />
-
-        {/* Toolbar */}
-        <div className="flex items-center gap-1.5 pt-3 border-t border-[#d4c9b0] mt-8">
-          {["B", "I", '"'].map((t, i) => (
-            <button key={i} className="font-serif text-[13px] text-[#9a8870] hover:text-[#2c2218] hover:bg-[#ede8df] px-2.5 py-1 rounded-md transition-colors">
-              {t}
-            </button>
-          ))}
-          <div className="w-px h-4 bg-[#d4c9b0] mx-1" />
-          {["H1", "H2", "Link"].map((t, i) => (
-            <button key={i} className="font-serif text-[13px] text-[#9a8870] hover:text-[#2c2218] hover:bg-[#ede8df] px-2.5 py-1 rounded-md transition-colors">
-              {t}
-            </button>
-          ))}
-          <span className="ml-auto font-serif text-xs text-[#b0a090]">
-            {wordCount} words
-          </span>
-        </div>
-
-        {/* Tags */}
-        <div className="flex items-center gap-2 mt-6 flex-wrap">
-          {["Essay", "Culture", "Life"].map((tag) => (
-            <span key={tag} className="font-serif text-[11.5px] text-[#8a6a40] bg-[#ede8df] rounded-full px-3 py-1">
-              {tag}
-            </span>
-          ))}
-          <input
-            placeholder="+ add tag"
-            className="font-serif text-xs text-[#5a4a38] bg-transparent border border-dashed border-[#c9b897] rounded-full px-3 py-1 w-28 outline-none placeholder:text-[#c4b89e]"
-          />
-        </div>
       </div>
     </div>
   );
