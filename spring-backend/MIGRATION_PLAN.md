@@ -21,7 +21,7 @@ Build a Java 21 / Spring Boot 3 backend alongside the existing Hono Cloudflare W
 - Hash newly created passwords with BCrypt and transparently upgrade legacy plaintext passwords after a successful login.
 - Install stateless JWT authentication infrastructure for later protected endpoints.
 
-## Phase 2 — Posts module (requires confirmation)
+## Phase 2 — Posts module (complete)
 
 - Map PostgreSQL `"Post"` to a JPA entity and relate it to `User`.
 - Migrate the protected endpoints:

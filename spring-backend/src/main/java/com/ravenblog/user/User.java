@@ -12,7 +12,9 @@ import lombok.Setter;
 import java.util.UUID;
 
 @Entity
-@Table(name = "\"User\"")
+// Prisma created this case-sensitive PostgreSQL table as "User".
+// Hibernate annotation identifiers use backticks to request SQL quoting.
+@Table(name = "`User`")
 @Getter
 @Setter
 @NoArgsConstructor
