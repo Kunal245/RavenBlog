@@ -1,12 +1,12 @@
 # RavenBlog
 
-RavenBlog is a blog application with a React single-page frontend, a Spring Boot API backed by PostgreSQL, and a retained Hono/Cloudflare Worker API. The frontend is currently configured to use the Spring service at `http://localhost:8080` during local development.
+RavenBlog is a blog application with a React frontend and a PostgreSQL-backed Spring Boot API. A Hono Worker implementation remains in `backend/`. The frontend uses the Spring API at `http://localhost:8080` for local development.
 
 ## Features
 
-- Account signup and signin with email-format usernames and passwords of at least six characters.
-- HS256 JWT issuance and bearer-token authentication.
-- Create, list, read, update, and delete blog posts.
+- Signup and signin with an email address and password.
+- JWT-based authentication for post mutations.
+- Create, list, read, update, and delete posts.
 - PostgreSQL persistence for users and posts.
 - Spring Boot protects post mutation routes and restricts updates and deletes to the post author.
 - React routes for signup, signin, the post list, post detail, and post publishing.
@@ -16,7 +16,7 @@ RavenBlog is a blog application with a React single-page frontend, a Spring Boot
 | Area | Implementation |
 | --- | --- |
 | Frontend | React 19, TypeScript, Vite, React Router, Axios, Tailwind CSS, Flowbite |
-| Backend | Spring Boot 3.4 on Java 21; Hono on Cloudflare Workers is also present in `backend/` |
+| Backend | Spring Boot 3.4 on Java 21; Hono Worker in `backend/` |
 | Database | PostgreSQL, Prisma schema and migrations; Spring Data JPA mappings |
 | Authentication | HS256 JWTs; Spring uses BCrypt for new passwords and supports migration from legacy plaintext passwords |
 | Deployment | Vercel SPA rewrite configuration for the frontend |
@@ -88,17 +88,19 @@ RavenBlog is a blog application with a React single-page frontend, a Spring Boot
 
 ### Installation
 
-Install dependencies for the frontend and, if it will be used, the Hono Worker:
+Install the frontend dependencies:
 
 ```bash
 cd frontend
 npm install
-
-cd ../backend
-npm install
 ```
 
-Maven resolves Spring dependencies when the Spring service is started.
+Install the Hono Worker dependencies only when running that implementation:
+
+```bash
+cd backend
+npm install
+```
 
 ### Environment Variables
 
@@ -109,14 +111,14 @@ The Spring service reads these variables:
 | `DATABASE_URL` | Yes | Direct PostgreSQL URL: `postgresql://user:password@host:5432/database` or `jdbc:postgresql://...` |
 | `SECRET` | Yes | JWT signing secret of at least 32 UTF-8 bytes |
 
-Create `spring-backend/.env` locally, or export the variables in your shell. The file is ignored by Git.
+Create `spring-backend/.env` locally, or export the variables in your shell:
 
 ```dotenv
 DATABASE_URL=postgresql://database_user:database_password@host:5432/database
 SECRET=replace-with-a-secret-of-at-least-32-bytes
 ```
 
-The Hono Worker also expects `DATABASE_URL` and `SECRET` through its Cloudflare bindings. Its Prisma configuration reads `DATABASE_URL` from `backend/.env` for Prisma commands.
+The Hono Worker also uses `DATABASE_URL` and `SECRET` as Cloudflare bindings. Prisma reads `DATABASE_URL` from `backend/.env`.
 
 ### Running Locally
 
@@ -130,7 +132,7 @@ set +a
 mvn spring-boot:run
 ```
 
-The Spring API listens on `http://localhost:8080`. This matches `frontend/src/config.ts`.
+The Spring API listens on `http://localhost:8080`.
 
 Start the frontend from another terminal:
 
@@ -141,33 +143,19 @@ npm run dev
 
 ## API
 
-The frontend uses the Spring API. The Hono Worker exposes the same route paths but has different read-route authorization and does not perform Spring's post-author ownership check.
+The frontend is configured for the Spring API. Both backend implementations expose the routes below. They differ on blog-read access and post ownership checks.
 
 User request bodies use `username` (an email address) and `password`; signup also accepts optional `name`. Blog creation accepts `title` and `content`; updates additionally require `id`; deletion requires `id`.
 
-### Spring Boot API
-
 | Method | Endpoint | Description | Auth Required |
 | --- | --- | --- | --- |
-| `POST` | `/api/v1/user/signup` | Creates a user and returns a JWT as plain text. | No |
-| `POST` | `/api/v1/user/signin` | Verifies credentials and returns a JWT as plain text. | No |
-| `POST` | `/api/v1/blog` | Creates a post for the authenticated user. | Yes — Bearer JWT |
-| `PUT` | `/api/v1/blog` | Updates a post when the authenticated user is its author. | Yes — Bearer JWT |
-| `DELETE` | `/api/v1/blog` | Deletes a post when the authenticated user is its author. | Yes — Bearer JWT |
-| `GET` | `/api/v1/blog/bulk` | Returns all posts with each author's name. | No |
-| `GET` | `/api/v1/blog/{id}` | Returns one post with its author's name. | No |
-
-### Hono Worker API
-
-| Method | Endpoint | Description | Auth Required |
-| --- | --- | --- | --- |
-| `POST` | `/api/v1/user/signup` | Creates a user and returns a JWT as plain text. | No |
-| `POST` | `/api/v1/user/signin` | Verifies credentials and returns a JWT as plain text. | No |
-| `POST` | `/api/v1/blog` | Creates a post for the authenticated user. | Yes — Bearer JWT |
-| `PUT` | `/api/v1/blog` | Updates a post by ID. | Yes — Bearer JWT |
-| `DELETE` | `/api/v1/blog` | Deletes a post by ID. | Yes — Bearer JWT |
-| `GET` | `/api/v1/blog/bulk` | Returns all posts with each author's name. | Yes — Bearer JWT |
-| `GET` | `/api/v1/blog/{id}` | Returns one post with its author's name. | Yes — Bearer JWT |
+| `POST` | `/api/v1/user/signup` | Creates a user and returns a plain-text JWT. | No |
+| `POST` | `/api/v1/user/signin` | Verifies credentials and returns a plain-text JWT. | No |
+| `POST` | `/api/v1/blog` | Creates a post for the authenticated user. | Yes — Spring and Hono |
+| `PUT` | `/api/v1/blog` | Updates a post. Spring requires the post author; Hono does not check ownership. | Yes — Spring and Hono |
+| `DELETE` | `/api/v1/blog` | Deletes a post. Spring requires the post author; Hono does not check ownership. | Yes — Spring and Hono |
+| `GET` | `/api/v1/blog/bulk` | Returns all posts with author names. | Spring: No; Hono: Yes |
+| `GET` | `/api/v1/blog/{id}` | Returns a post with its author's name. | Spring: No; Hono: Yes |
 
 ## Database
 
@@ -182,11 +170,11 @@ The Prisma migration creates the unique index on `User.email` and the foreign ke
 
 ## Authentication
 
-Signup and signin accept JSON request bodies. The Spring service signs an HS256 JWT containing only the user ID claim: `{ "id": "<user-id>" }`. The frontend stores the response as `Bearer <token>` in `localStorage` and sends it in the `Authorization` header for blog requests.
+The Spring service signs HS256 tokens containing the user ID: `{ "id": "<user-id>" }`. The frontend stores the response as `Bearer <token>` in `localStorage` and uses it in the `Authorization` header for blog requests.
 
 Spring stores passwords created through its signup endpoint with BCrypt. When a user with a legacy plaintext password signs in successfully through Spring, the password is replaced with a BCrypt hash in the same transaction. The Hono Worker continues to create and compare legacy plaintext passwords.
 
-The Spring security configuration is stateless, disables CSRF, permits the user routes and blog reads, and requires a valid bearer token for blog mutations. The Hono Worker applies its JWT middleware to every blog route.
+Spring uses stateless security, disables CSRF, permits user routes and blog reads, and requires a valid bearer token for blog mutations. Hono applies its JWT middleware to every blog route.
 
 ## Development
 
@@ -195,16 +183,17 @@ The Spring security configuration is stateless, disables CSRF, permits the user 
 cd frontend
 npm run dev
 
-# Spring API (load spring-backend/.env first)
+# Spring API
 cd spring-backend
+set -a && . ./.env && set +a
 mvn spring-boot:run
+
+mvn test
 
 # Hono Worker
 cd backend
 npm run dev
 ```
-
-Additional frontend commands:
 
 ```bash
 cd frontend
@@ -214,14 +203,6 @@ npm run lint
 
 ## Deployment
 
-`frontend/vercel.json` configures Vercel to rewrite all paths to `/index.html`, allowing client-side routes to resolve after deployment.
+`frontend/vercel.json` rewrites all paths to `/index.html` so client-side routes resolve after deployment.
 
 The Hono Worker package provides `npm run deploy`, which runs `wrangler deploy --minify`.
-
-## Contributing
-
-Keep changes focused, preserve the existing API request shapes where compatibility matters, and update the relevant documentation with behavior changes. Run the frontend build and lint commands before opening a pull request; run the Spring test suite when the environment permits it.
-
-## License
-
-MIT
