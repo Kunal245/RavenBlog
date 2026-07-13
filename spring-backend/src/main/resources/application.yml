@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: ravenblog-spring-backend
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+app:
+  jwt:
+    # Deliberately shares the existing Node.js/Worker signing secret.
+    secret: ${SECRET}
