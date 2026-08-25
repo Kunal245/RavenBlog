@@ -1,5 +1,6 @@
 import type { SignupInput } from "@kunal245/medium-common";
 import { useState, type ChangeEvent } from "react";
+import type { MouseEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
@@ -13,15 +14,19 @@ export const Auth = ({type}: {type: "signup" | "signin"}) => {
         password: "",
         name: "",
     });
+    const [loading, setLoading] = useState(false);
 
     async function sendRequest() {
       try{
+        setLoading(true);
         const response = await axios.post(`${BACKEND_URL}/api/v1/user/${type === "signup" ? "signup" : "signin"}`, postInputs)
+        setLoading(false);
         const jwt = "Bearer " + response.data;
         localStorage.setItem("token", jwt)
         navigate("/blogs")
       } catch(e){
         alert("Error while signing up")
+        setLoading(false);
       }
     }
 
@@ -57,7 +62,7 @@ export const Auth = ({type}: {type: "signup" | "signin"}) => {
               }))
             }} />
             <div className="py-4 flex justify-center">
-                <button onClick={sendRequest} type="button" className="text-fg-brand bg-neutral-primary border border-brand hover:bg-brand hover:text-white focus:ring-4 focus:ring-brand-subtle font-medium rounded-base text-base px-6 py-3.5 focus:outline-none">{type === "signup" ? "Sign up" : "Sign in"}</button>
+                <button onClick={sendRequest} type="button" className="text-fg-brand bg-neutral-primary border border-brand hover:bg-brand hover:text-white focus:ring-4 focus:ring-brand-subtle font-medium rounded-base text-base px-6 py-3.5 focus:outline-none">{loading ? ("Loading...") : (type === "signup" ? "Sign up" : "Sign in")}</button>
             </div>
           </div>
         </div>
