@@ -3,14 +3,15 @@ package com.ravenblog.blog;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+// import org.springframework.web.bind.annotation.DeleteMapping;
+// import org.springframework.web.bind.annotation.GetMapping;
+// import org.springframework.web.bind.annotation.PathVariable;
+// import org.springframework.web.bind.annotation.PostMapping;
+// import org.springframework.web.bind.annotation.PutMapping;
+// import org.springframework.web.bind.annotation.RequestBody;
+// import org.springframework.web.bind.annotation.RequestMapping;
+// import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/blog")
@@ -39,8 +40,14 @@ public class BlogController {
         return blogService.all();
     }
 
+    // @GetMapping("/{id}")
+    // public BlogService.BlogResponse one(@PathVariable String id) {
+    //     return blogService.one(id);
+    // }
+
     @GetMapping("/{id}")
-    public BlogService.BlogResponse one(@PathVariable String id) {
-        return blogService.one(id);
+    public BlogService.SingleBlogResponse one(@PathVariable String id) {
+        return new BlogService.SingleBlogResponse(blogService.one(id));
     }
+
 }

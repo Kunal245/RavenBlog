@@ -79,6 +79,9 @@ public class BlogService {
     public record BlogResponse(String id, String title, String content, AuthorResponse author) {
     }
 
+    public record SingleBlogResponse(BlogResponse blog) {
+    }
+
     public record AuthorResponse(String name) {
     }
 }
